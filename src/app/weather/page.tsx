@@ -9,8 +9,9 @@ import styles from './weather.module.css';
 import {
   WeatherData,
   ForecastData,
-  AirQualityData
+  AirQualityData,
 } from '@/types/weather';
+
 import {
   getWeatherBackground,
   convertKelvinToCelsius,
