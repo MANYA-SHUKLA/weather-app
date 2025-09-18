@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import WeatherCard from '@/components/WeatherCard';
@@ -18,7 +19,6 @@ import {
   convertKelvinToFahrenheit,
   formatDate,
   saveToSearchHistory,
-  getAQIDescription
 } from '@/utils/helpers';
 import { WEATHER_BACKGROUNDS, AQI_LEVELS } from '@/utils/constants';
 
@@ -66,7 +66,7 @@ export default function Weather() {
 
         const weatherResponse = await fetch(apiUrl, { headers: { 'Accept': 'application/json' } });
         if (!weatherResponse.ok) {
-          const errorData = await weatherResponse.json().catch(() => ({}));
+          // Removed unused errorData variable
           if (weatherResponse.status === 401) throw new Error('Invalid API key.');
           if (weatherResponse.status === 404) throw new Error('City not found.');
           throw new Error(`API Error: ${weatherResponse.statusText}`);
@@ -82,7 +82,7 @@ export default function Weather() {
 
         const [forecastResponse, aqiResponse] = await Promise.all([
           fetch(forecastUrl),
-          fetch(aqiUrl)
+          fetch(aqiUrl),
         ]);
 
         if (!forecastResponse.ok) throw new Error('Failed to fetch forecast data');
@@ -93,7 +93,6 @@ export default function Weather() {
         setWeatherData(weather);
         setForecastData(forecast);
         setAirQualityData(aqi);
-
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch weather data';
         setError(errorMessage);
@@ -171,30 +170,35 @@ export default function Weather() {
   const aqi = airQualityData?.list[0]?.main.aqi;
   const aqiInfo = aqi ? AQI_LEVELS[aqi as keyof typeof AQI_LEVELS] : null;
 
-  const dailyForecast = forecastData.list.reduce((acc: any[], item) => {
+  type DailyForecast = {
+    date: string;
+    items: typeof forecastData.list[number][];
+    minTemp: number;
+    maxTemp: number;
+  };
+
+  const dailyForecast: DailyForecast[] = forecastData.list.reduce((acc: DailyForecast[], item) => {
     const date = new Date(item.dt * 1000).toDateString();
-    if (!acc.find(d => d.date === date)) {
+    const existingDay = acc.find((d) => d.date === date);
+
+    if (!existingDay) {
       acc.push({
         date,
         items: [item],
         minTemp: item.main.temp_min,
-        maxTemp: item.main.temp_max
+        maxTemp: item.main.temp_max,
       });
     } else {
-      const day = acc.find(d => d.date === date);
-      day.items.push(item);
-      day.minTemp = Math.min(day.minTemp, item.main.temp_min);
-      day.maxTemp = Math.max(day.maxTemp, item.main.temp_max);
+      existingDay.items.push(item);
+      existingDay.minTemp = Math.min(existingDay.minTemp, item.main.temp_min);
+      existingDay.maxTemp = Math.max(existingDay.maxTemp, item.main.temp_max);
     }
     return acc;
   }, []).slice(0, 5);
 
   return (
     <div className={styles.container}>
-      <div
-        className={styles.background}
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      ></div>
+      <div className={styles.background} style={{ backgroundImage: `url(${backgroundImage})` }}></div>
 
       <div className={styles.content}>
         {/* Header with back button and controls */}
@@ -214,11 +218,7 @@ export default function Weather() {
         </div>
 
         {/* Current Weather */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <WeatherCard
             city={weatherData.name}
             country={weatherData.sys.country}
@@ -236,29 +236,17 @@ export default function Weather() {
 
         {/* Air Quality */}
         {aqiInfo && (
-          <motion.div
-            className={styles.aqiSection}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
+          <motion.div className={styles.aqiSection} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
             <h3 className={styles.sectionTitle}>Air Quality</h3>
             <div className={styles.aqiCard}>
               <span className={styles.aqiValue}>AQI: {aqi}</span>
-              <span className={`${styles.aqiLevel} ${aqiInfo.color}`}>
-                {aqiInfo.level}
-              </span>
+              <span className={`${styles.aqiLevel} ${aqiInfo.color}`}>{aqiInfo.level}</span>
             </div>
           </motion.div>
         )}
 
         {/* 5-Day Forecast with swipe support */}
-        <motion.div
-          className={styles.forecastSection}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
+        <motion.div className={styles.forecastSection} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }}>
           <h3 className={styles.sectionTitle}>5-Day Forecast</h3>
           <div
             className={styles.forecastContainer}
@@ -285,10 +273,13 @@ export default function Weather() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <h4 className="font-bold text-black">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</h4>
-                  <img
+                  <Image
                     src={`https://openweathermap.org/img/wn/${day.items[0].weather[0].icon}.png`}
                     alt={day.items[0].weather[0].description}
+                    width={50}
+                    height={50}
                     className={styles.forecastIcon}
+                    priority={false}
                   />
                   <div className={`${styles.tempRange} font-bold text-black`}>
                     <span>{displayMax}°</span>
