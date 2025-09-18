@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -22,7 +22,7 @@ import {
 } from '@/utils/helpers';
 import { WEATHER_BACKGROUNDS, AQI_LEVELS } from '@/utils/constants';
 
-export default function Weather() {
+function WeatherContent() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [forecastData, setForecastData] = useState<ForecastData | null>(null);
   const [airQualityData, setAirQualityData] = useState<AirQualityData | null>(null);
@@ -66,7 +66,6 @@ export default function Weather() {
 
         const weatherResponse = await fetch(apiUrl, { headers: { 'Accept': 'application/json' } });
         if (!weatherResponse.ok) {
-          // Removed unused errorData variable
           if (weatherResponse.status === 401) throw new Error('Invalid API key.');
           if (weatherResponse.status === 404) throw new Error('City not found.');
           throw new Error(`API Error: ${weatherResponse.statusText}`);
@@ -135,10 +134,8 @@ export default function Weather() {
       const threshold = 50; // Minimum swipe distance
 
       if (distance > threshold) {
-        // Swipe left: scroll right
         forecastRef.current.scrollBy({ left: 150, behavior: 'smooth' });
       } else if (distance < -threshold) {
-        // Swipe right: scroll left
         forecastRef.current.scrollBy({ left: -150, behavior: 'smooth' });
       }
     }
@@ -201,7 +198,6 @@ export default function Weather() {
       <div className={styles.background} style={{ backgroundImage: `url(${backgroundImage})` }}></div>
 
       <div className={styles.content}>
-        {/* Header with back button and controls */}
         <div className={styles.header}>
           <button onClick={() => router.push('/')} className={styles.backButton}>
             ← Back
@@ -217,7 +213,6 @@ export default function Weather() {
           </div>
         </div>
 
-        {/* Current Weather */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <WeatherCard
             city={weatherData.name}
@@ -234,7 +229,6 @@ export default function Weather() {
           />
         </motion.div>
 
-        {/* Air Quality */}
         {aqiInfo && (
           <motion.div className={styles.aqiSection} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
             <h3 className={styles.sectionTitle}>Air Quality</h3>
@@ -245,7 +239,6 @@ export default function Weather() {
           </motion.div>
         )}
 
-        {/* 5-Day Forecast with swipe support */}
         <motion.div className={styles.forecastSection} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }}>
           <h3 className={styles.sectionTitle}>5-Day Forecast</h3>
           <div
@@ -256,13 +249,8 @@ export default function Weather() {
             onTouchEnd={onTouchEnd}
           >
             {dailyForecast.map((day, index) => {
-              const displayMin = unit === 'celsius'
-                ? convertKelvinToCelsius(day.minTemp)
-                : convertKelvinToFahrenheit(day.minTemp);
-
-              const displayMax = unit === 'celsius'
-                ? convertKelvinToCelsius(day.maxTemp)
-                : convertKelvinToFahrenheit(day.maxTemp);
+              const displayMin = unit === 'celsius' ? convertKelvinToCelsius(day.minTemp) : convertKelvinToFahrenheit(day.minTemp);
+              const displayMax = unit === 'celsius' ? convertKelvinToCelsius(day.maxTemp) : convertKelvinToFahrenheit(day.maxTemp);
 
               return (
                 <motion.div
@@ -285,9 +273,7 @@ export default function Weather() {
                     <span>{displayMax}°</span>
                     <span className={styles.tempMin}>{displayMin}°</span>
                   </div>
-                  <p className={`${styles.forecastDesc} font-bold text-black`}>
-                    {day.items[0].weather[0].description}
-                  </p>
+                  <p className={`${styles.forecastDesc} font-bold text-black`}>{day.items[0].weather[0].description}</p>
                 </motion.div>
               );
             })}
@@ -295,5 +281,13 @@ export default function Weather() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function Weather() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <WeatherContent />
+    </Suspense>
   );
 }
