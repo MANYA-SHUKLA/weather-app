@@ -6,10 +6,16 @@ import { motion } from 'framer-motion';
 import styles from './home.module.css';
 import { getSearchHistory } from '@/utils/helpers';
 
+interface SearchHistoryItem {
+  id: string | number;
+  city: string;
+  country: string;
+}
+
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchHistory, setSearchHistory] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,7 +39,6 @@ export default function Home() {
           const { latitude, longitude } = position.coords;
           console.log('Geolocation coordinates:', latitude, longitude);
 
-          // First, let's get the city name from coordinates
           try {
             const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
             const reverseGeocodeUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${apiKey}`;
@@ -43,30 +48,27 @@ export default function Home() {
               const locationData = await response.json();
               if (locationData && locationData.length > 0) {
                 const cityName = locationData[0].name;
-                const country = locationData[0].country;
                 router.push(`/weather?city=${encodeURIComponent(cityName)}`);
               } else {
-                // Fallback to coordinates if city name not found
                 router.push(`/weather?lat=${latitude}&lon=${longitude}`);
               }
             } else {
-              // Fallback to coordinates if reverse geocoding fails
               router.push(`/weather?lat=${latitude}&lon=${longitude}`);
             }
           } catch (error) {
             console.error('Reverse geocoding failed:', error);
-            // Fallback to coordinates
             router.push(`/weather?lat=${latitude}&lon=${longitude}`);
           }
         },
-        (error) => {
+        (error: GeolocationPositionError) => {
           console.error('Geolocation error:', error);
           setIsLoading(false);
 
-          // Show specific error messages based on error code
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              alert('Location access denied. Please allow location access in your browser settings or search for a city manually.');
+              alert(
+                'Location access denied. Please allow location access in your browser settings or search for a city manually.'
+              );
               break;
             case error.POSITION_UNAVAILABLE:
               alert('Location information unavailable. Please try again or search for a city manually.');
@@ -81,14 +83,15 @@ export default function Home() {
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 60000
+          maximumAge: 60000,
         }
       );
     } else {
       alert('Geolocation is not supported by your browser. Please search for a city manually.');
     }
   };
-  const handleHistoryClick = (city: string, country: string) => {
+
+  const handleHistoryClick = (city: string) => {
     setIsLoading(true);
     router.push(`/weather?city=${encodeURIComponent(city)}`);
   };
@@ -143,8 +146,18 @@ export default function Home() {
               }}
             />
             <button type="submit" className={styles.searchButton}>
-              <svg className={styles.searchIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className={styles.searchIcon}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </button>
           </div>
@@ -156,9 +169,24 @@ export default function Home() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <svg className={styles.locationIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          <svg
+            className={styles.locationIcon}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
           </svg>
           Use My Location
         </motion.button>
@@ -175,7 +203,7 @@ export default function Home() {
               {searchHistory.map((item) => (
                 <motion.button
                   key={item.id}
-                  onClick={() => handleHistoryClick(item.city, item.country)}
+                  onClick={() => handleHistoryClick(item.city)}
                   className={styles.historyItem}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
