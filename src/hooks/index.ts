@@ -1,0 +1,1 @@
+export { useTouchSwipe } from './useTouchSwipe';

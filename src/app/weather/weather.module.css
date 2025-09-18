@@ -1,0 +1,242 @@
+/* weather.module.css */
+
+.container {
+  min-height: 100vh; /* min-h-screen */
+  position: relative;
+  overflow-x: auto; /* enable horizontal scroll for forecast */
+  background-color: #e0f2fe; /* light sky blue background */
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background-size: cover; /* bg-cover */
+  background-position: center; /* bg-center */
+  background-repeat: no-repeat; /* bg-no-repeat */
+}
+
+.background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(224, 242, 254, 0.8); /* semi-transparent light sky blue */
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  max-width: 56rem; /* max-w-4xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem;
+  padding-top: 2rem; /* py-8 */
+  padding-bottom: 2rem;
+  color: #000000; /* black text */
+  font-weight: 700; /* bold text */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem; /* mb-8 */
+}
+
+.backButton {
+  background-color: rgba(255, 255, 255, 0.9); /* bright white */
+  backdrop-filter: blur(10px); /* subtle blur */
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem;
+  padding-top: 0.5rem; /* py-2 */
+  padding-bottom: 0.5rem;
+  border-radius: 0.5rem; /* rounded-lg */
+  color: #000000; /* black text */
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.backButton:hover {
+  background-color: #bae6fd; /* light blue on hover */
+  transition: all 0.2s ease;
+  color: #000000;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.unitButton {
+  background-color: rgba(255, 255, 255, 0.9); /* bright white */
+  backdrop-filter: blur(10px); /* subtle blur */
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem;
+  padding-top: 0.5rem; /* py-2 */
+  padding-bottom: 0.5rem;
+  border-radius: 0.5rem; /* rounded-lg */
+  color: #000000; /* black text */
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.unitButton:hover {
+  background-color: #bae6fd; /* light blue hover */
+  transition: all 0.2s ease;
+  color: #000000;
+}
+
+.shareButton {
+  background-color: #3b82f6; /* bg-blue-500 */
+  color: white;
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem;
+  padding-top: 0.5rem; /* py-2 */
+  padding-bottom: 0.5rem;
+  border-radius: 0.5rem; /* rounded-lg */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 700;
+}
+
+.shareButton:hover {
+  background-color: #2563eb; /* hover:bg-blue-600 */
+  transition: all 0.2s ease;
+}
+
+.aqiSection {
+  margin-top: 2rem; /* mt-8 */
+}
+
+.sectionTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700; /* font-bold */
+  color: #000000; /* black text */
+  margin-bottom: 1rem; /* mb-4 */
+  text-align: center;
+}
+
+.aqiCard {
+  background-color: rgba(255, 255, 255, 0.9); /* bright white */
+  backdrop-filter: blur(10px); /* subtle blur */
+  border-radius: 1.5rem; /* rounded-2xl */
+  padding: 1.5rem; /* p-6 */
+  text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  color: #000000;
+  font-weight: 700;
+}
+
+.aqiValue {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+  color: #000000; /* black text */
+  display: block;
+  margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.aqiLevel {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700; /* font-bold */
+  color: #000000; /* black text */
+}
+
+.forecastSection {
+  margin-top: 2rem; /* mt-8 */
+  overflow-x: auto; /* allow horizontal scrolling */
+  white-space: nowrap; /* prevent wrapping */
+  padding-bottom: 1rem; /* spacing for scrollbar */
+}
+
+.forecastContainer {
+  display: inline-flex;
+  gap: 1rem; /* gap-4 */
+  padding-left: 1rem;
+  padding-right: 1rem;
+  /* remove grid settings for horizontal scroll */
+}
+
+.forecastDay {
+  flex: 0 0 auto; /* prevent shrinking and set auto width */
+  background-color: rgba(255, 255, 255, 0.9); /* bright white */
+  backdrop-filter: blur(10px); /* subtle blur */
+  border-radius: 1.5rem; /* rounded-2xl */
+  padding: 1rem; /* p-4 */
+  text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  color: #000000;
+  font-weight: 700;
+  min-width: 140px; /* set min width per card for horizontal scroll */
+}
+
+.forecastIcon {
+  width: 3rem; /* w-12 */
+  height: 3rem; /* h-12 */
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.5rem; /* my-2 */
+  margin-bottom: 0.5rem;
+}
+
+.tempRange {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+  margin-top: 0.5rem; /* my-2 */
+  margin-bottom: 0.5rem;
+  color: #000000;
+  font-weight: 700;
+}
+
+.tempMin {
+  color: #6b7280; /* a soft gray for min temp */
+  font-weight: 700;
+}
+
+.forecastDesc {
+  font-size: 0.875rem; /* text-sm */
+  color: #000000;
+  text-transform: capitalize;
+  font-weight: 700;
+}
+
+.errorContainer {
+  min-height: 100vh; /* min-h-screen */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(254, 202, 202, 0.8); /* light red tint */
+}
+
+.errorContent {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.95); /* bright white */
+  backdrop-filter: blur(10px); /* subtle blur */
+  border-radius: 1.5rem; /* rounded-2xl */
+  padding: 2rem; /* p-8 */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  color: #000000;
+  font-weight: 700;
+}
+
+.errorContent h2 {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+  color: #b91c1c; /* deep red for error heading */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.errorContent p {
+  color: #000000; /* black text */
+  margin-bottom: 1.5rem; /* mb-6 */
+  font-weight: 700;
+}
