@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
           style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
           aria-label="Weather Companion Logo"
         >
-          {/* Logo image from an online URL */}
+          
           <motion.img
             src="https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=48&q=80"
             alt="Weather icon"
